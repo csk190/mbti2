@@ -1,261 +1,241 @@
-import React, { useState, useMemo } from 'react';
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 심리테스트</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Fonts and Styles -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+      body { font-family: 'Noto Sans KR', sans-serif; }
+      @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+    </style>
+  </head>
+  <body>
+    <!-- React App이 렌더링될 Root Div -->
+    <div id="root"></div>
 
-// 아이콘 SVG 컴포넌트들
-const ShareIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-);
+    <!-- React, ReactDOM, Babel CDN. Babel은 브라우저에서 JSX를 변환하기 위해 필요합니다. -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-const TwitterIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.22-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21c7.34 0 11.35-6.08 11.35-11.35 0-.17 0-.34-.01-.51.78-.57 1.45-1.28 1.99-2.09z"></path></svg>
-);
+    <!-- React 컴포넌트 코드 -->
+    <script type="text/babel">
+      const { useState, useMemo } = React;
 
-const FacebookIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path></svg>
-);
+      // Apps Script를 통해 웹 앱의 공식 URL을 가져옵니다.
+      const shareableUrl = '<?= ScriptApp.getService().getUrl() ?>';
 
-const KakaoIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-        <path d="M12 2C6.486 2 2 5.589 2 10.007c0 2.922 2.003 5.515 4.78 6.943.12.052.24.08.36.08.201 0 .401-.06.561-.19l1.31-1.055c.33-.265.79-.265 1.12 0l1.31 1.055c.16.13.36.19.561.19.12 0 .24-.028.36-.08C19.997 15.522 22 12.929 22 10.007 22 5.589 17.514 2 12 2z" />
-    </svg>
-);
+      // 아이콘 SVG 컴포넌트들
+      const ShareIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      );
 
-const CopyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-);
+      const TwitterIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.22-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21c7.34 0 11.35-6.08 11.35-11.35 0-.17 0-.34-.01-.51.78-.57 1.45-1.28 1.99-2.09z"></path></svg>
+      );
 
-const RefreshCwIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><path d="M3 2v6h6"></path><path d="M21 12A9 9 0 0 0 6 5.3L3 8"></path><path d="M21 22v-6h-6"></path><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path></svg>
-);
+      const FacebookIcon = () => (
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path></svg>
+      );
 
+      const KakaoIcon = () => (
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+              <path d="M12 2C6.486 2 2 5.589 2 10.007c0 2.922 2.003 5.515 4.78 6.943.12.052.24.08.36.08.201 0 .401-.06.561-.19l1.31-1.055c.33-.265.79-.265 1.12 0l1.31 1.055c.16.13.36.19.561.19.12 0 .24-.028.36-.08C19.997 15.522 22 12.929 22 10.007 22 5.589 17.514 2 12 2z" />
+          </svg>
+      );
 
-const questions = [
-    { q: "주말에 당신은?", a: [{ text: "친구들과 만나 파티를 즐긴다", type: "E" }, { text: "집에서 조용히 책을 읽거나 영화를 본다", type: "I" }] },
-    { q: "새로운 일을 배울 때 당신은?", a: [{ text: "직접 부딪히며 경험으로 배운다", type: "S" }, { text: "원리와 개념을 먼저 이해하고 시작한다", type: "N" }] },
-    { q: "친구의 고민을 들어줄 때 당신은?", a: [{ text: "객관적인 사실을 바탕으로 해결책을 제시한다", type: "T" }, { text: "따뜻한 말로 위로하고 공감해준다", type: "F" }] },
-    { q: "여행 계획을 세울 때 당신은?", a: [{ text: "출발 전 모든 것을 상세하게 계획한다", type: "J" }, { text: "상황에 맞춰 즉흥적으로 결정한다", type: "P" }] },
-    { q: "단체 활동에서 당신은?", a: [{ text: "주로 대화를 주도하고 분위기를 이끈다", type: "E" }, { text: "다른 사람의 이야기를 듣는 것을 선호한다", type: "I" }] },
-    { q: "영화를 보고 난 후 당신은?", a: [{ text: "영화의 구체적인 장면이나 대사를 기억한다", type: "S" }, { text: "영화에 담긴 상징이나 숨은 의미를 생각한다", type: "N" }] },
-    { q: "결정을 내릴 때 중요한 것은?", a: [{ text: "논리적이고 합리적인 판단", type: "T" }, { text: "다른 사람과의 관계와 조화", type: "F" }] },
-    { q: "갑작스러운 약속이 생겼을 때 당신은?", a: [{ text: "이미 계획이 있어 거절하는 편이다", type: "J" }, { text: "재미있을 것 같으면 흔쾌히 참여한다", type: "P" }] },
-    { q: "처음 만난 사람들과 있을 때 당신은?", a: [{ text: "먼저 다가가 말을 걸고 쉽게 친해진다", type: "E" }, { text: "어색하고 무슨 말을 할지 고민한다", type: "I" }] },
-    { q: "미래를 생각할 때 당신은?", a: [{ text: "현실적으로 이룰 수 있는 목표를 세운다", type: "S" }, { text: "다양한 가능성을 상상하고 꿈꾼다", type: "N" }] },
-    { q: "일이 잘못되었을 때 당신은?", a: [{ text: "무엇이 문제인지 분석하고 해결하려 한다", type: "T" }, { text: "감정적으로 속상하고 스트레스를 받는다", type: "F" }] },
-    { q: "책상을 정리할 때 당신은?", a: [{ text: "항상 깔끔하게 정돈되어 있어야 한다", type: "J" }, { text: "필요할 때만 정리하고 평소엔 자유롭게 둔다", type: "P" }] },
-];
+      const CopyIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      );
 
-const mbtiInfo = {
-    ISTJ: { summary: "청렴결백한 논리주의자", description: "현실적이고 책임감이 강하며, 한번 시작한 일은 끝까지 해내는 신뢰할 수 있는 사람입니다." },
-    ISFJ: { summary: "용감한 수호자", description: "차분하고 헌신적이며, 주변 사람들을 챙기는 것에 큰 기쁨을 느낍니다." },
-    INFJ: { summary: "선의의 옹호자", description: "통찰력이 뛰어나고 사람들에게 영감을 주며, 더 나은 세상을 만드는 데 기여하고 싶어합니다." },
-    INTJ: { summary: "용의주도한 전략가", description: "상상력이 풍부하며 철두철미한 계획을 세우는 전략가형입니다." },
-    ISTP: { summary: "만능 재주꾼", description: "대담하고 현실적인 성향으로, 다양한 도구 사용에 능숙한 탐험가형입니다." },
-    ISFP: { summary: "호기심 많은 예술가", description: "항상 새로운 것을 찾아 시도하거나 도전할 준비가 되어 있는 융통성 있는 성격의 매력 넘치는 예술가입니다." },
-    INFP: { summary: "열정적인 중재자", description: "상냥한 성격의 이타주의자로, 건강하고 밝은 사회 건설에 앞장서는 낭만형입니다." },
-    INTP: { summary: "논리적인 사색가", description: "끊임없이 새로운 지식에 목말라 하는 혁신가형입니다." },
-    ESTP: { summary: "모험을 즐기는 사업가", description: "넘치는 에너지와 스마트함으로, 주변 사람들을 즐겁게 만드는 명석한 두뇌의 소유자입니다." },
-    ESFP: { summary: "자유로운 영혼의 연예인", description: "주위에 있으면 인생이 지루할 새가 없을 정도로 즉흥적이며 열정과 에너지가 넘치는 연예인형입니다." },
-    ENFP: { summary: "재기발랄한 활동가", description: "창의적이며 항상 웃을 거리를 찾아다니는 활발한 성격으로, 사람들과 자유롭게 어울리기를 좋아하는 열정적인 사람입니다." },
-    ENTP: { summary: "뜨거운 논쟁을 즐기는 변론가", description: "지적인 도전을 두려워하지 않는 똑똑한 호기심형입니다." },
-    ESTJ: { summary: "엄격한 관리자", description: "사물이나 사람을 관리하는 데 타의 추종을 불허하는 뛰어난 실력을 갖춘 관리자형입니다." },
-    ESFJ: { summary: "사교적인 외교관", description: "타인을 향한 세심한 관심과 사교적인 성향으로, 사람들 내에서 인기가 많으며 타인을 돕는 것을 즐깁니다." },
-    ENFJ: { summary: "정의로운 사회운동가", description: "넘치는 카리스마와 영향력으로, 청중을 압도하는 리더형입니다." },
-    ENTJ: { summary: "대담한 통솔자", description: "대담하면서도 상상력이 풍부한 강한 의지의 소유자로, 다양한 방법을 모색하거나 여의치 않을 경우 새로운 방안을 창출하는 리더형입니다." },
-};
+      const RefreshCwIcon = () => (
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><path d="M3 2v6h6"></path><path d="M21 12A9 9 0 0 0 6 5.3L3 8"></path><path d="M21 22v-6h-6"></path><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path></svg>
+      );
 
+      const questions = [
+          { q: "주말에 당신은?", a: [{ text: "친구들과 만나 파티를 즐긴다", type: "E" }, { text: "집에서 조용히 책을 읽거나 영화를 본다", type: "I" }] },
+          { q: "새로운 일을 배울 때 당신은?", a: [{ text: "직접 부딪히며 경험으로 배운다", type: "S" }, { text: "원리와 개념을 먼저 이해하고 시작한다", type: "N" }] },
+          { q: "친구의 고민을 들어줄 때 당신은?", a: [{ text: "객관적인 사실을 바탕으로 해결책을 제시한다", type: "T" }, { text: "따뜻한 말로 위로하고 공감해준다", type: "F" }] },
+          { q: "여행 계획을 세울 때 당신은?", a: [{ text: "출발 전 모든 것을 상세하게 계획한다", type: "J" }, { text: "상황에 맞춰 즉흥적으로 결정한다", type: "P" }] },
+          { q: "단체 활동에서 당신은?", a: [{ text: "주로 대화를 주도하고 분위기를 이끈다", type: "E" }, { text: "다른 사람의 이야기를 듣는 것을 선호한다", type: "I" }] },
+          { q: "영화를 보고 난 후 당신은?", a: [{ text: "영화의 구체적인 장면이나 대사를 기억한다", type: "S" }, { text: "영화에 담긴 상징이나 숨은 의미를 생각한다", type: "N" }] },
+          { q: "결정을 내릴 때 중요한 것은?", a: [{ text: "논리적이고 합리적인 판단", type: "T" }, { text: "다른 사람과의 관계와 조화", type: "F" }] },
+          { q: "갑작스러운 약속이 생겼을 때 당신은?", a: [{ text: "이미 계획이 있어 거절하는 편이다", type: "J" }, { text: "재미있을 것 같으면 흔쾌히 참여한다", type: "P" }] },
+          { q: "처음 만난 사람들과 있을 때 당신은?", a: [{ text: "먼저 다가가 말을 걸고 쉽게 친해진다", type: "E" }, { text: "어색하고 무슨 말을 할지 고민한다", type: "I" }] },
+          { q: "미래를 생각할 때 당신은?", a: [{ text: "현실적으로 이룰 수 있는 목표를 세운다", type: "S" }, { text: "다양한 가능성을 상상하고 꿈꾼다", type: "N" }] },
+          { q: "일이 잘못되었을 때 당신은?", a: [{ text: "무엇이 문제인지 분석하고 해결하려 한다", type: "T" }, { text: "감정적으로 속상하고 스트레스를 받는다", type: "F" }] },
+          { q: "책상을 정리할 때 당신은?", a: [{ text: "항상 깔끔하게 정돈되어 있어야 한다", type: "J" }, { text: "필요할 때만 정리하고 평소엔 자유롭게 둔다", type: "P" }] },
+      ];
 
-export default function App() {
-    const [page, setPage] = useState('intro'); // intro, test, result
-    const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [answers, setAnswers] = useState([]);
-    const [mbtiResult, setMbtiResult] = useState(null);
-    const [copied, setCopied] = useState(false);
+      const mbtiInfo = {
+          ISTJ: { summary: "청렴결백한 논리주의자", description: "현실적이고 책임감이 강하며, 한번 시작한 일은 끝까지 해내는 신뢰할 수 있는 사람입니다." },
+          ISFJ: { summary: "용감한 수호자", description: "차분하고 헌신적이며, 주변 사람들을 챙기는 것에 큰 기쁨을 느낍니다." },
+          INFJ: { summary: "선의의 옹호자", description: "통찰력이 뛰어나고 사람들에게 영감을 주며, 더 나은 세상을 만드는 데 기여하고 싶어합니다." },
+          INTJ: { summary: "용의주도한 전략가", description: "상상력이 풍부하며 철두철미한 계획을 세우는 전략가형입니다." },
+          ISTP: { summary: "만능 재주꾼", description: "대담하고 현실적인 성향으로, 다양한 도구 사용에 능숙한 탐험가형입니다." },
+          ISFP: { summary: "호기심 많은 예술가", description: "항상 새로운 것을 찾아 시도하거나 도전할 준비가 되어 있는 융통성 있는 성격의 매력 넘치는 예술가입니다." },
+          INFP: { summary: "열정적인 중재자", description: "상냥한 성격의 이타주의자로, 건강하고 밝은 사회 건설에 앞장서는 낭만형입니다." },
+          INTP: { summary: "논리적인 사색가", description: "끊임없이 새로운 지식에 목말라 하는 혁신가형입니다." },
+          ESTP: { summary: "모험을 즐기는 사업가", description: "넘치는 에너지와 스마트함으로, 주변 사람들을 즐겁게 만드는 명석한 두뇌의 소유자입니다." },
+          ESFP: { summary: "자유로운 영혼의 연예인", description: "주위에 있으면 인생이 지루할 새가 없을 정도로 즉흥적이며 열정과 에너지가 넘치는 연예인형입니다." },
+          ENFP: { summary: "재기발랄한 활동가", description: "창의적이며 항상 웃을 거리를 찾아다니는 활발한 성격으로, 사람들과 자유롭게 어울리기를 좋아하는 열정적인 사람입니다." },
+          ENTP: { summary: "뜨거운 논쟁을 즐기는 변론가", description: "지적인 도전을 두려워하지 않는 똑똑한 호기심형입니다." },
+          ESTJ: { summary: "엄격한 관리자", description: "사물이나 사람을 관리하는 데 타의 추종을 불허하는 뛰어난 실력을 갖춘 관리자형입니다." },
+          ESFJ: { summary: "사교적인 외교관", description: "타인을 향한 세심한 관심과 사교적인 성향으로, 사람들 내에서 인기가 많으며 타인을 돕는 것을 즐깁니다." },
+          ENFJ: { summary: "정의로운 사회운동가", description: "넘치는 카리스마와 영향력으로, 청중을 압도하는 리더형입니다." },
+          ENTJ: { summary: "대담한 통솔자", description: "대담하면서도 상상력이 풍부한 강한 의지의 소유자로, 다양한 방법을 모색하거나 여의치 않을 경우 새로운 방안을 창출하는 리더형입니다." },
+      };
 
-    const handleStart = () => {
-        setPage('test');
-        setCurrentQuestion(0);
-        setAnswers([]);
-        setMbtiResult(null);
-    };
+      function App() {
+          const [page, setPage] = useState('intro');
+          const [currentQuestion, setCurrentQuestion] = useState(0);
+          const [answers, setAnswers] = useState([]);
+          const [mbtiResult, setMbtiResult] = useState(null);
+          const [copied, setCopied] = useState(false);
 
-    const handleAnswer = (type) => {
-        const newAnswers = [...answers, type];
-        setAnswers(newAnswers);
+          const handleStart = () => {
+              setPage('test');
+              setCurrentQuestion(0);
+              setAnswers([]);
+              setMbtiResult(null);
+          };
 
-        if (currentQuestion < questions.length - 1) {
-            setCurrentQuestion(currentQuestion + 1);
-        } else {
-            calculateResult(newAnswers);
-            setPage('result');
-        }
-    };
+          const handleAnswer = (type) => {
+              const newAnswers = [...answers, type];
+              setAnswers(newAnswers);
+              if (currentQuestion < questions.length - 1) {
+                  setCurrentQuestion(currentQuestion + 1);
+              } else {
+                  calculateResult(newAnswers);
+                  setPage('result');
+              }
+          };
 
-    const calculateResult = (finalAnswers) => {
-        const counts = finalAnswers.reduce((acc, type) => {
-            acc[type] = (acc[type] || 0) + 1;
-            return acc;
-        }, {});
+          const calculateResult = (finalAnswers) => {
+              const counts = finalAnswers.reduce((acc, type) => {
+                  acc[type] = (acc[type] || 0) + 1;
+                  return acc;
+              }, {});
+              let result = "";
+              result += (counts['E'] || 0) > (counts['I'] || 0) ? 'E' : 'I';
+              result += (counts['S'] || 0) > (counts['N'] || 0) ? 'S' : 'N';
+              result += (counts['T'] || 0) > (counts['F'] || 0) ? 'T' : 'F';
+              result += (counts['J'] || 0) > (counts['P'] || 0) ? 'J' : 'P';
+              setMbtiResult(result);
+          };
 
-        let result = "";
-        result += (counts['E'] || 0) > (counts['I'] || 0) ? 'E' : 'I';
-        result += (counts['S'] || 0) > (counts['N'] || 0) ? 'S' : 'N';
-        result += (counts['T'] || 0) > (counts['F'] || 0) ? 'T' : 'F';
-        // [오류 수정] J/P 계산 로직이 항상 P를 반환하는 문제를 수정했습니다.
-        result += (counts['J'] || 0) > (counts['P'] || 0) ? 'J' : 'P';
-        
-        setMbtiResult(result);
-    };
+          const handleRestart = () => {
+              setPage('intro');
+          };
+          
+          const handleShare = (platform) => {
+              const shareText = `나의 MBTI 결과는 ${mbtiResult}(${mbtiInfo[mbtiResult].summary}) 입니다! 당신의 MBTI도 알아보세요!`;
+              let url = '';
+              switch(platform) {
+                  case 'twitter':
+                      url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareableUrl)}&text=${encodeURIComponent(shareText)}`;
+                      break;
+                  case 'facebook':
+                      url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableUrl)}`;
+                      break;
+                  case 'kakao':
+                      alert("카카오 공유는 공식 SDK 연동이 필요합니다. 이 버튼은 데모용입니다.");
+                      return;
+              }
+              window.open(url, '_blank', 'noopener,noreferrer');
+          };
 
-    const handleRestart = () => {
-        setPage('intro');
-    };
-    
-    const handleShare = (platform) => {
-        const shareUrl = window.location.href;
-        const shareText = `나의 MBTI 결과는 ${mbtiResult}(${mbtiInfo[mbtiResult].summary}) 입니다! 당신의 MBTI도 알아보세요!`;
+          const handleCopy = () => {
+              const shareText = `나의 MBTI 결과는 ${mbtiResult}(${mbtiInfo[mbtiResult].summary}) 입니다! 여기서 당신의 MBTI도 알아보세요: ${shareableUrl}`;
+              const textArea = document.createElement("textarea");
+              textArea.value = shareText;
+              document.body.appendChild(textArea);
+              textArea.focus();
+              textArea.select();
+              try {
+                  document.execCommand('copy');
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+              } catch (err) {
+                  console.error('클립보드 복사 실패:', err);
+              }
+              document.body.removeChild(textArea);
+          };
+          
+          const progress = useMemo(() => (currentQuestion / questions.length) * 100, [currentQuestion]);
 
-        let url = '';
-        switch(platform) {
-            case 'twitter':
-                url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-                break;
-            case 'facebook':
-                url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-                break;
-            case 'kakao':
-                // 카카오 공유는 SDK를 사용해야 하지만, 여기서는 alert으로 대체합니다.
-                // 실제 앱에서는 Kakao.Link.sendDefault를 사용해야 합니다.
-                alert("카카오 공유는 공식 SDK 연동이 필요합니다. 이 버튼은 데모용입니다.");
-                /*
-                if (window.Kakao && window.Kakao.isInitialized()) {
-                    window.Kakao.Link.sendDefault({
-                        objectType: 'text',
-                        text: shareText,
-                        link: {
-                            mobileWebUrl: shareUrl,
-                            webUrl: shareUrl,
-                        },
-                    });
-                } else {
-                   alert("카카오 SDK가 로드되지 않았습니다.");
-                }
-                */
-                return;
-        }
-        window.open(url, '_blank', 'noopener,noreferrer');
-    };
+          return (
+              <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen flex items-center justify-center p-4 font-sans">
+                  <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg p-6 md:p-10 text-center transition-all duration-500">
+                      {page === 'intro' && (
+                          <div className="animate-fade-in">
+                              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">나의 MBTI 찾기</h1>
+                              <p className="text-gray-600 mb-8">12개의 간단한 질문으로 당신의 성격 유형을 알아보세요!</p>
+                              <button onClick={handleStart} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105 shadow-lg">
+                                  테스트 시작
+                              </button>
+                          </div>
+                      )}
+                      {page === 'test' && (
+                          <div className="animate-fade-in">
+                              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                                  <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.3s ease-in-out' }}></div>
+                              </div>
+                              <p className="text-gray-600 mb-4 font-semibold">질문 {currentQuestion + 1} / {questions.length}</p>
+                              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 min-h-[100px] flex items-center justify-center">
+                                  {questions[currentQuestion].q}
+                              </h2>
+                              <div className="space-y-4">
+                                  {questions[currentQuestion].a.map((answer, index) => (
+                                      <button key={index} onClick={() => handleAnswer(answer.type)} className="w-full bg-white hover:bg-blue-100 text-blue-800 font-semibold py-4 px-6 rounded-lg border-2 border-blue-200 transition-all duration-200 transform hover:scale-105 shadow-sm">
+                                          {answer.text}
+                                      </button>
+                                  ))}
+                              </div>
+                          </div>
+                      )}
+                      {page === 'result' && mbtiResult && (
+                          <div className="animate-fade-in">
+                              <p className="text-lg text-blue-600 font-semibold">당신의 성격 유형은...</p>
+                              <h1 className="text-6xl md:text-7xl font-extrabold text-blue-500 my-3">{mbtiResult}</h1>
+                              <h2 className="text-2xl font-bold text-gray-700">{mbtiInfo[mbtiResult].summary}</h2>
+                              <p className="text-gray-600 mt-4 mb-8 max-w-md mx-auto">{mbtiInfo[mbtiResult].description}</p>
+                              <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                                  <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center justify-center">
+                                      <ShareIcon /> 결과 공유하기
+                                  </h3>
+                                  <div className="flex justify-center items-center space-x-3">
+                                      <button onClick={() => handleShare('kakao')} className="bg-yellow-400 hover:bg-yellow-500 text-black p-3 rounded-full transition-transform transform hover:scale-110 shadow-md" aria-label="카카오톡으로 공유"><KakaoIcon /></button>
+                                      <button onClick={() => handleShare('twitter')} className="bg-sky-400 hover:bg-sky-500 text-white p-3 rounded-full transition-transform transform hover:scale-110 shadow-md" aria-label="트위터로 공유"><TwitterIcon /></button>
+                                      <button onClick={() => handleShare('facebook')} className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-transform transform hover:scale-110 shadow-md" aria-label="페이스북으로 공유"><FacebookIcon /></button>
+                                  </div>
+                              </div>
+                              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                  <button onClick={handleCopy} className="w-full sm:w-auto flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-full transition-all shadow-sm">
+                                      <CopyIcon /> {copied ? '복사 완료!' : '링크 복사'}
+                                  </button>
+                                  <button onClick={handleRestart} className="w-full sm:w-auto flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-all shadow-lg">
+                                      <RefreshCwIcon /> 다시하기
+                                  </button>
+                              </div>
+                          </div>
+                      )}
+                  </div>
+              </div>
+          );
+      }
 
-    const handleCopy = () => {
-        const shareText = `나의 MBTI 결과는 ${mbtiResult}(${mbtiInfo[mbtiResult].summary}) 입니다! 여기서 당신의 MBTI도 알아보세요: ${window.location.href}`;
-        
-        const textArea = document.createElement("textarea");
-        textArea.value = shareText;
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error('클립보드 복사 실패:', err);
-        }
-        document.body.removeChild(textArea);
-    };
-    
-    const progress = useMemo(() => {
-        return (currentQuestion / questions.length) * 100;
-    }, [currentQuestion]);
-
-    return (
-        <div className="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen flex items-center justify-center p-4 font-sans">
-            <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg p-6 md:p-10 text-center transition-all duration-500">
-                
-                {page === 'intro' && (
-                    <div className="animate-fade-in">
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">나의 MBTI 찾기</h1>
-                        <p className="text-gray-600 mb-8">12개의 간단한 질문으로 당신의 성격 유형을 알아보세요!</p>
-                        <button 
-                            onClick={handleStart}
-                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105 shadow-lg"
-                        >
-                            테스트 시작
-                        </button>
-                    </div>
-                )}
-
-                {page === 'test' && (
-                    <div className="animate-fade-in">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
-                            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.3s ease-in-out' }}></div>
-                        </div>
-                        <p className="text-gray-600 mb-4 font-semibold">질문 {currentQuestion + 1} / {questions.length}</p>
-                        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 min-h-[100px] flex items-center justify-center">
-                            {questions[currentQuestion].q}
-                        </h2>
-                        <div className="space-y-4">
-                            {questions[currentQuestion].a.map((answer, index) => (
-                                <button 
-                                    key={index}
-                                    onClick={() => handleAnswer(answer.type)}
-                                    className="w-full bg-white hover:bg-blue-100 text-blue-800 font-semibold py-4 px-6 rounded-lg border-2 border-blue-200 transition-all duration-200 transform hover:scale-105 shadow-sm"
-                                >
-                                    {answer.text}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {page === 'result' && mbtiResult && (
-                    <div className="animate-fade-in">
-                        <p className="text-lg text-blue-600 font-semibold">당신의 성격 유형은...</p>
-                        <h1 className="text-6xl md:text-7xl font-extrabold text-blue-500 my-3">{mbtiResult}</h1>
-                        <h2 className="text-2xl font-bold text-gray-700">{mbtiInfo[mbtiResult].summary}</h2>
-                        <p className="text-gray-600 mt-4 mb-8 max-w-md mx-auto">{mbtiInfo[mbtiResult].description}</p>
-                        
-                        <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                            <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center justify-center">
-                                <ShareIcon /> 결과 공유하기
-                            </h3>
-                            <div className="flex justify-center items-center space-x-3">
-                                <button onClick={() => handleShare('kakao')} className="bg-yellow-400 hover:bg-yellow-500 text-black p-3 rounded-full transition-transform transform hover:scale-110 shadow-md" aria-label="카카오톡으로 공유">
-                                    <KakaoIcon />
-                                </button>
-                                <button onClick={() => handleShare('twitter')} className="bg-sky-400 hover:bg-sky-500 text-white p-3 rounded-full transition-transform transform hover:scale-110 shadow-md" aria-label="트위터로 공유">
-                                    <TwitterIcon />
-                                </button>
-                                <button onClick={() => handleShare('facebook')} className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-transform transform hover:scale-110 shadow-md" aria-label="페이스북으로 공유">
-                                    <FacebookIcon />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button 
-                                onClick={handleCopy}
-                                className="w-full sm:w-auto flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-full transition-all shadow-sm"
-                            >
-                                <CopyIcon /> {copied ? '복사 완료!' : '링크 복사'}
-                            </button>
-                            <button 
-                                onClick={handleRestart}
-                                className="w-full sm:w-auto flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-all shadow-lg"
-                            >
-                                <RefreshCwIcon /> 다시하기
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
-                .font-sans { font-family: 'Noto Sans KR', sans-serif; }
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-            `}</style>
-        </div>
-    );
-}
+      // React 앱을 'root' div에 렌더링합니다.
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>
