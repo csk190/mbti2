@@ -31,8 +31,8 @@
     <script type="text/babel">
       const { useState, useMemo } = React;
 
-      // Apps Script를 통해 웹 앱의 공식 URL을 가져옵니다.
-      const shareableUrl = '<?= ScriptApp.getService().getUrl() ?>';
+      // GitHub Pages 배포를 위해 현재 페이지 URL을 동적으로 가져옵니다.
+      const shareableUrl = window.location.href;
 
       // 아이콘 SVG 컴포넌트들
       const ShareIcon = () => (
